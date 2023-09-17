@@ -5,8 +5,6 @@ import argparse
 from tqdm import tqdm
 
 
-sitk.MultiThreaderBase.SetGlobalDefaultNumberOfThreads(16)
-
 def normalize_image(image):
     """Normalize image pixel values between 0 and 1."""
     min_val = np.min(image)
