@@ -32,8 +32,8 @@ class DVFCalculator:
         # Define the registration method
         registration_method = sitk.ImageRegistrationMethod()
 
-        # Similarity metric settings
-        registration_method.SetMetricAsMeanSquares()
+        # Similarity metric settings: Using Mattes Mutual Information
+        registration_method.SetMetricAsMattesMutualInformation(numberOfHistogramBins=50)
         registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
         registration_method.SetMetricSamplingPercentage(self.__sampling_pecentage)
 
@@ -46,9 +46,9 @@ class DVFCalculator:
         registration_method.SetOptimizerAsGradientDescent(learningRate=1.0, numberOfIterations=100)
         registration_method.SetOptimizerScalesFromPhysicalShift()
 
-        # Set initial transform (identity)
-        initial_transform = sitk.TranslationTransform(fixed_image.GetDimension())
-        registration_method.SetInitialTransform(initial_transform, inPlace=True)
+        # Set initial transform using BSpline
+        bspline_transform = sitk.BSplineTransformInitializer(fixed_image, [4,4,4])
+        registration_method.SetInitialTransform(bspline_transform, inPlace=False)
 
         # Register the images
         final_transform = registration_method.Execute(fixed_image, moving_image)
