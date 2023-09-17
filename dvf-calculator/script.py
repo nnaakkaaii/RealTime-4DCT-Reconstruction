@@ -94,4 +94,4 @@ if __name__ == "__main__":
                         help="Smoothing sigmas for multi-resolution approach.")
     
     args = parser.parse_args()
-    main(args.directory)
+    main(args.directory, args.shrink_factors, args.smoothing_sigmas)
