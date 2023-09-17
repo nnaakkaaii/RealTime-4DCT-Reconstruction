@@ -49,6 +49,7 @@ def compute_dvf(fixed_image, moving_image):
                                             outputDirection=fixed_image.GetDirection())
     return sitk.GetArrayFromImage(dvf)
 
+
 def main(directory):
     # Recursively search for npz files
     npz_files = [os.path.join(root, file) 
