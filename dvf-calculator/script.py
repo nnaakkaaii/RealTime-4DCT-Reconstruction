@@ -5,6 +5,8 @@ import argparse
 from tqdm import tqdm
 
 
+sitk.MultiThreaderBase.SetGlobalDefaultNumberOfThreads(16)
+
 def normalize_image(image):
     """Normalize image pixel values between 0 and 1."""
     min_val = np.min(image)
@@ -13,18 +15,20 @@ def normalize_image(image):
 
 
 class DVFCalculator:
-    def __init__(self, sampling_percentage, shrink_factors, smoothing_sigmas):
+    def __init__(self, sampling_percentage, shrink_factors, smoothing_sigmas, histogram_bins):
         self.__sampling_pecentage = sampling_percentage
         self.__shrink_factors = shrink_factors
         self.__smoothing_sigmas = smoothing_sigmas
+        self.__histogram_bins = histogram_bins
 
-    def compute(self, fixed_image, moving_image):
+    def compute(self, fixed_image, moving_image, initial_transform=None):
         """
         Compute the 3D DVF between two images.
         
         Args:
         - fixed_image: The image that will be used as the reference.
         - moving_image: The image that will be aligned to the fixed_image.
+        - initial_transform: Initial transformation to be applied, if any.
         
         Returns:
         - dvf: The displacement vector field as a numpy array.
@@ -33,7 +37,7 @@ class DVFCalculator:
         registration_method = sitk.ImageRegistrationMethod()
 
         # Similarity metric settings: Using Mattes Mutual Information
-        registration_method.SetMetricAsMattesMutualInformation(numberOfHistogramBins=50)
+        registration_method.SetMetricAsMattesMutualInformation(numberOfHistogramBins=self.__histogram_bins)
         registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
         registration_method.SetMetricSamplingPercentage(self.__sampling_pecentage)
 
@@ -48,6 +52,8 @@ class DVFCalculator:
 
         # Set initial transform using BSpline
         bspline_transform = sitk.BSplineTransformInitializer(fixed_image, [4,4,4])
+        if initial_transform:
+            bspline_transform.AddTransform(initial_transform)
         registration_method.SetInitialTransform(bspline_transform, inPlace=False)
 
         # Register the images
@@ -60,15 +66,15 @@ class DVFCalculator:
                                                 outputOrigin=fixed_image.GetOrigin(),
                                                 outputSpacing=fixed_image.GetSpacing(),
                                                 outputDirection=fixed_image.GetDirection())
-        return sitk.GetArrayFromImage(dvf)
+        return sitk.GetArrayFromImage(dvf), final_transform  # Return transform for potential use in the next timestep
 
 
-def main(directory, sampling_percentage, shrink_factors, smoothing_sigmas):
-    dvf_calculator = DVFCalculator(sampling_percentage, shrink_factors, smoothing_sigmas)
+def main(directory, sampling_percentage, shrink_factors, smoothing_sigmas, histogram_bins):
+    dvf_calculator = DVFCalculator(sampling_percentage, shrink_factors, smoothing_sigmas, histogram_bins)
 
     # Recursively search for npz files
     npz_files = [os.path.join(root, file) 
-                 for root, dirs, files in os.walk(directory)
+                 for root, _, files in os.walk(directory)
                  for file in files if file.endswith(".npz")]
 
     for filepath in tqdm(npz_files, desc="Processing files"):
@@ -77,6 +83,7 @@ def main(directory, sampling_percentage, shrink_factors, smoothing_sigmas):
         data = normalize_image(data)
 
         dvfs = []
+        initial_transform = None  # Use this to store the transform from the previous timestep
         for t in range(9):
             fixed_img_array = data[t]
             moving_img_array = data[t + 1]
@@ -84,8 +91,9 @@ def main(directory, sampling_percentage, shrink_factors, smoothing_sigmas):
             fixed_img = sitk.GetImageFromArray(fixed_img_array)
             moving_img = sitk.GetImageFromArray(moving_img_array)
 
-            dvf = dvf_calculator.compute(fixed_img, moving_img)
+            dvf, transform = dvf_calculator.compute(fixed_img, moving_img, initial_transform=initial_transform)
             dvfs.append(dvf)
+            initial_transform = transform  # Update the transform
 
         dvfs = np.stack(dvfs, axis=0)
 
@@ -103,6 +111,8 @@ if __name__ == "__main__":
                         help="Shrink factors for multi-resolution approach.")
     parser.add_argument("--smoothing-sigmas", type=int, nargs='+', default=[4, 2, 1, 0],
                         help="Smoothing sigmas for multi-resolution approach.")
+    parser.add_argument("--histogram-bins", type=int, default=30,
+                        help="Number of histogram bins. Defualt is 30.")
     
     args = parser.parse_args()
-    main(args.directory, args.sampling_percentage, args.shrink_factors, args.smoothing_sigmas)
+    main(args.directory, args.sampling_percentage, args.shrink_factors, args.smoothing_sigmas, args.histogram_bins)
