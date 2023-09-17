@@ -5,8 +5,16 @@ import argparse
 from tqdm import tqdm
 
 
+def normalize_image(image):
+    """Normalize image pixel values between 0 and 1."""
+    min_val = np.min(image)
+    max_val = np.max(image)
+    return (image - min_val) / (max_val - min_val)
+
+
 class DVFCalculator:
-    def __init__(self, shrink_factors, smoothing_sigmas):
+    def __init__(self, sampling_percentage, shrink_factors, smoothing_sigmas):
+        self.__sampling_pecentage = sampling_percentage
         self.__shrink_factors = shrink_factors
         self.__smoothing_sigmas = smoothing_sigmas
 
@@ -27,7 +35,7 @@ class DVFCalculator:
         # Similarity metric settings
         registration_method.SetMetricAsMeanSquares()
         registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
-        registration_method.SetMetricSamplingPercentage(0.01)
+        registration_method.SetMetricSamplingPercentage(self.__sampling_pecentage)
 
         # Multi-resolution settings
         registration_method.SetShrinkFactorsPerLevel(shrinkFactors=self.__shrink_factors)
@@ -55,8 +63,8 @@ class DVFCalculator:
         return sitk.GetArrayFromImage(dvf)
 
 
-def main(directory, shrink_factors, smoothing_sigmas):
-    dvf_calculator = DVFCalculator(shrink_factors, smoothing_sigmas)
+def main(directory, sampling_percentage, shrink_factors, smoothing_sigmas):
+    dvf_calculator = DVFCalculator(sampling_percentage, shrink_factors, smoothing_sigmas)
 
     # Recursively search for npz files
     npz_files = [os.path.join(root, file) 
@@ -66,6 +74,7 @@ def main(directory, shrink_factors, smoothing_sigmas):
     for filepath in tqdm(npz_files, desc="Processing files"):
         # Load npz file
         data = np.load(filepath)['arr_0']
+        data = normalize_image(data)
 
         dvfs = []
         for t in range(9):
@@ -88,10 +97,12 @@ def main(directory, shrink_factors, smoothing_sigmas):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Compute DVFs for 4D-CT data in a directory.")
     parser.add_argument("directory", type=str, help="Directory containing the 4D-CT npz files.")
+    parser.add_argument("--sampling-percentage", type=float, default=0.01, 
+                    help="Metric sampling percentage for registration. Default is 0.01.")
     parser.add_argument("--shrink-factors", type=int, nargs='+', default=[8, 4, 2, 1],
                         help="Shrink factors for multi-resolution approach.")
     parser.add_argument("--smoothing-sigmas", type=int, nargs='+', default=[4, 2, 1, 0],
                         help="Smoothing sigmas for multi-resolution approach.")
     
     args = parser.parse_args()
-    main(args.directory, args.shrink_factors, args.smoothing_sigmas)
+    main(args.directory, args.sampling_percentage, args.shrink_factors, args.smoothing_sigmas)
