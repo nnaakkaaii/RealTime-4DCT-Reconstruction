@@ -32,7 +32,7 @@ This will compile the Docker image and tag it as `dvf-calculator`.
 Once you've built the image, you can utilize the DVF Calculator for any directory containing 4D-CT `.npz` files by executing:
 
 ```bash
-docker run -v /path/to/data:/app/data dvf-calculator python script.py /app/data
+docker run -v $(pwd)/../data/4D-Lung/npz1:/app/data dvf-calculator python script.py /app/data
 ```
 
 Ensure you replace `/path/to/data` with the actual path to your data directory. The calculated DVF outputs will be stored within the same directory with the `_dvf.npz` suffix.
