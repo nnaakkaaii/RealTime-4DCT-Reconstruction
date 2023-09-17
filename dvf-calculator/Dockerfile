@@ -1,4 +1,4 @@
-FROM python:3.8-slim
+FROM python:3.9-slim
 
 # インストール時のメッセージを非表示にするための環境変数
 ENV DEBIAN_FRONTEND=noninteractive
