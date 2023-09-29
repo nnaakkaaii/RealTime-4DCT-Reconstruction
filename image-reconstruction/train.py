@@ -6,14 +6,14 @@ import torch
 import numpy as np
 from torch import nn
 from torch.optim import Adam
-from torch.utils.data import Datset, DataLoader
+from torch.utils.data import Dataset, DataLoader
 
 from .criteria.ssim import ssim
 from .criteria.pjc import projection_consistency_loss
 
 
-def train(train_set: Datset,
-          val_set: Datset,
+def train(train_set: Dataset,
+          val_set: Dataset,
           generator: nn.Module,
           discriminator: nn.Module,
           num_epochs: int,

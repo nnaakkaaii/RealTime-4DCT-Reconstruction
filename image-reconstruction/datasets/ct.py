@@ -70,8 +70,8 @@ class CT(Dataset):
         idx = index // self.NUM_TIME_STEPS
         timestep_idx = index % self.NUM_TIME_STEPS
 
-        if len(self.__numpys) > 0:
-            x_4d_np = self.__numpys[idx]
+        if len(self.__data) > 0:
+            x_4d_np = self.__data[idx]
         else:
             x_4d_np = np.load(self.__paths[idx])["arr_0"]
         x_4d_tensor = torch.from_numpy(x_4d_np)
