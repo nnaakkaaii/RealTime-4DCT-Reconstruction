@@ -13,9 +13,9 @@ def ssim(x: torch.Tensor,
     mu_x = F.avg_pool3d(x, window_size, 1)
     mu_y = F.avg_pool3d(y, window_size, 1)
     
-    sigma_x  = F.avg_pool3d(x ** 2, window_size, 1) - mu_x ** 2
-    sigma_y  = F.avg_pool3d(y ** 2, window_size, 1) - mu_y ** 2
-    sigma_xy = F.avg_pool3d(x * y , window_size, 1) - mu_x * mu_y
+    sigma_x = F.avg_pool3d(x ** 2, window_size, 1) - mu_x ** 2
+    sigma_y = F.avg_pool3d(y ** 2, window_size, 1) - mu_y ** 2
+    sigma_xy = F.avg_pool3d(x * y, window_size, 1) - mu_x * mu_y
     
     s = ((2 * mu_x * mu_y + c1) * (2 * sigma_xy + c2)) / ((mu_x ** 2 + mu_y ** 2 + c1) * (sigma_x + sigma_y + c2))
     

@@ -13,8 +13,8 @@ class Shift(PreTransform):
         self.dz, self.dx, self.dy = ds
 
     def __call__(self,
-                    x: torch.Tensor,
-                    ) -> torch.Tensor:
+                 x: torch.Tensor,
+                 ) -> torch.Tensor:
         min_val = torch.min(x)
 
         # N dimension (dz)

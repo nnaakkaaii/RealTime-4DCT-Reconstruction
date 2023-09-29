@@ -60,13 +60,14 @@ class CT(Dataset):
 
         return _normal_indexing_func
 
-    def __read_all(self, directory: Path) -> list[Path]:
+    @staticmethod
+    def __read_all(directory: Path) -> list[Path]:
         return list(sorted(directory.glob("**/*")))
 
     def __len__(self) -> int:
         return self.NUM_TIME_STEPS * len(self.__paths)
 
-    def __getitem__(self, index: int) -> torch.Tensor:
+    def __getitem__(self, index: int) -> dict[str, torch.Tensor]:
         idx = index // self.NUM_TIME_STEPS
         timestep_idx = index % self.NUM_TIME_STEPS
 

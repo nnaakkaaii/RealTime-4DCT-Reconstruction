@@ -132,11 +132,11 @@ def train(train_set: Dataset,
                 loss_real = criterion_adv(output_real, label_real)
 
                 fake_3d_ct = generator(real_2d_ct,
-                                    data["exhale_3d"].cuda(),
-                                    data["inhale_3d"].cuda(),
-                                    data["exhale_2d"].cuda(),
-                                    data["inhale_2d"].cuda(),
-                                    )
+                                       data["exhale_3d"].cuda(),
+                                       data["inhale_3d"].cuda(),
+                                       data["exhale_2d"].cuda(),
+                                       data["inhale_2d"].cuda(),
+                                       )
 
                 output_fake = discriminator(fake_3d_ct.detach()).view(-1)
                 loss_fake = criterion_adv(output_fake, label_fake)
@@ -147,7 +147,7 @@ def train(train_set: Dataset,
                 metrics["val_d_total"] += loss_d.item()
 
                 output_fake = discriminator(fake_3d_ct.detach()).view(-1)
-                loss_fake = criterion_adv(output_fake, label_real)
+                loss_adv = criterion_adv(output_fake, label_real)
 
                 loss_mse = criterion_mse(fake_3d_ct, real_3d_ct)
                 loss_ssim = ssim(fake_3d_ct, real_3d_ct)
@@ -181,21 +181,21 @@ def train(train_set: Dataset,
 
         print(f"Epoch {epoch}/{num_epochs}")
         print(f"Train Losses: "
-            f"MSE: {metrics['train_mse'] / len(train_loader)}, "
-            f"SSIM: {metrics['train_ssim'] / len(train_loader)}, "
-            f"ADV: {metrics['train_adv'] / len(train_loader)}, "
-            f"PJC: {metrics['train_pjc'] / len(train_loader)}, "
-            f"Total G: {metrics['train_g_total'] / len(train_loader)}, "
-            f"Total D: {metrics['train_d_total'] / len(train_loader)}"
-            )
+              f"MSE: {metrics['train_mse'] / len(train_loader)}, "
+              f"SSIM: {metrics['train_ssim'] / len(train_loader)}, "
+              f"ADV: {metrics['train_adv'] / len(train_loader)}, "
+              f"PJC: {metrics['train_pjc'] / len(train_loader)}, "
+              f"Total G: {metrics['train_g_total'] / len(train_loader)}, "
+              f"Total D: {metrics['train_d_total'] / len(train_loader)}"
+              )
         print(f"Val Losses: "
-            f"MSE: {metrics['val_mse'] / len(train_loader)}, "
-            f"SSIM: {metrics['val_ssim'] / len(train_loader)}, "
-            f"ADV: {metrics['val_adv'] / len(train_loader)}, "
-            f"PJC: {metrics['val_pjc'] / len(train_loader)}, "
-            f"Total G: {metrics['val_g_total'] / len(train_loader)}, "
-            f"Total D: {metrics['val_d_total'] / len(train_loader)}"
-            )
+              f"MSE: {metrics['val_mse'] / len(train_loader)}, "
+              f"SSIM: {metrics['val_ssim'] / len(train_loader)}, "
+              f"ADV: {metrics['val_adv'] / len(train_loader)}, "
+              f"PJC: {metrics['val_pjc'] / len(train_loader)}, "
+              f"Total G: {metrics['val_g_total'] / len(train_loader)}, "
+              f"Total D: {metrics['val_d_total'] / len(train_loader)}"
+              )
         print("="*50)
 
     return min_target_value
