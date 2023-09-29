@@ -36,6 +36,7 @@ def main(phase: str,
          save_graph_per_idx: int = 10,
          save_weight_per_epoch: int = 10,
          target: str = "mse",
+         device: str = "cuda:0",
          ) -> None:
     assert phase == "train"
     dataset = CT(directory=dataset_directory,
@@ -94,6 +95,7 @@ def main(phase: str,
           save_graph_per_idx=save_graph_per_idx,
           save_weight_per_epoch=save_weight_per_epoch,
           target=target,
+          device=device,
           )
 
 
@@ -126,7 +128,8 @@ if __name__ == "__main__":
     parser.add_argument('--save_graph_per_idx', type=int, default=10, help='Frequency to save the generated CT graphs.')
     parser.add_argument('--save_weight_per_epoch', type=int, default=10, help='Frequency to save the model weights.')
     parser.add_argument('--target', type=str, default='mse', help='Target loss for training.')
-    
+    parser.add_argument('--device', type=str, choices=['cpu', 'cuda:0'], default='cuda:0', help='Name of the generator to use.')
+
     args = parser.parse_args()
 
     # Call the main function with the parsed arguments

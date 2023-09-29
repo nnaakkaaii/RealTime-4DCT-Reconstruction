@@ -30,14 +30,15 @@ def train(train_set: Dataset,
           save_graph_per_idx: int = 10,
           save_weight_per_epoch: int = 10,
           target: str = "mse",
+          device: str = "cuda:0",
           ) -> float:
     min_target_value = 10**6
 
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
 
-    generator.cuda()
-    discriminator.cuda()
+    generator.to(device)
+    discriminator.to(device)
 
     optim_g = Adam(generator.parameters(), lr=lr_g, betas=betas_g)
     optim_d = Adam(discriminator.parameters(), lr=lr_d, betas=betas_d)
@@ -54,12 +55,12 @@ def train(train_set: Dataset,
         for data in train_loader:
             batch_size = data["3d"].size(0)
 
-            real_3d_ct = data["3d"].cuda()
-            real_2d_ct = data["2d"].cuda()
+            real_3d_ct = data["3d"].to(device)
+            real_2d_ct = data["2d"].to(device)
 
             # update discriminator
-            label_real = torch.ones(batch_size).cuda()
-            label_fake = torch.zeros(batch_size).cuda()
+            label_real = torch.ones(batch_size).to(device)
+            label_fake = torch.zeros(batch_size).to(device)
 
             optim_d.zero_grad()
 
@@ -67,10 +68,10 @@ def train(train_set: Dataset,
             loss_real = criterion_adv(output_real, label_real)
 
             fake_3d_ct = generator(real_2d_ct,
-                                   data["exhale_3d"].cuda(),
-                                   data["inhale_3d"].cuda(),
-                                   data["exhale_2d"].cuda(),
-                                   data["inhale_2d"].cuda(),
+                                   data["exhale_3d"].to(device),
+                                   data["inhale_3d"].to(device),
+                                   data["exhale_2d"].to(device),
+                                   data["inhale_2d"].to(device),
                                    )
             
             output_fake = discriminator(fake_3d_ct.detach()).view(-1)
@@ -121,21 +122,21 @@ def train(train_set: Dataset,
             for idx, data in enumerate(val_loader):
                 batch_size = data["3d"].size(0)
 
-                real_3d_ct = data["3d"].cuda()
-                real_2d_ct = data["2d"].cuda()
+                real_3d_ct = data["3d"].to(device)
+                real_2d_ct = data["2d"].to(device)
 
                 # discriminator
-                label_real = torch.ones(batch_size).cuda()
-                label_fake = torch.zeros(batch_size).cuda()
+                label_real = torch.ones(batch_size).to(device)
+                label_fake = torch.zeros(batch_size).to(device)
 
                 output_real = discriminator(real_3d_ct).view(-1)
                 loss_real = criterion_adv(output_real, label_real)
 
                 fake_3d_ct = generator(real_2d_ct,
-                                       data["exhale_3d"].cuda(),
-                                       data["inhale_3d"].cuda(),
-                                       data["exhale_2d"].cuda(),
-                                       data["inhale_2d"].cuda(),
+                                       data["exhale_3d"].to(device),
+                                       data["inhale_3d"].to(device),
+                                       data["exhale_2d"].to(device),
+                                       data["inhale_2d"].to(device),
                                        )
 
                 output_fake = discriminator(fake_3d_ct.detach()).view(-1)
