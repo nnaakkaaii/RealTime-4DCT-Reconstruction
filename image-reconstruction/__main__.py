@@ -13,7 +13,7 @@ from .networks.simple_discriminator import SimpleDiscriminator
 
 
 def main(phase: str,
-         dataset_directory: Path,
+         data_dir: Path,
          dataset_slice_indexing_min_occupancy: float,
          dataset_slice_indexing_threshold: float,
          use_shift_pre_transform: bool,
@@ -39,7 +39,7 @@ def main(phase: str,
          device: str = "cuda:0",
          ) -> None:
     assert phase == "train"
-    dataset = CT(directory=dataset_directory,
+    dataset = CT(directory=data_dir,
                  slice_indexing_func=CT.get_normal_indexing_func(
                      dataset_slice_indexing_min_occupancy,
                      dataset_slice_indexing_threshold,
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--phase', type=str, default='train', help='Phase of the program (default: train).')
-    parser.add_argument('--dataset_directory', type=Path, required=True, help='Directory containing the CT dataset.')
+    parser.add_argument('--data_dir', type=Path, required=True, help='Directory containing the CT dataset.')
     parser.add_argument('--dataset_slice_indexing_min_occupancy', type=float, default=0.2, help='Minimum occupancy for slice indexing.')
     parser.add_argument('--dataset_slice_indexing_threshold', type=float, default=0.1, help='Threshold for slice indexing.')
     parser.add_argument('--use_shift_pre_transform', action='store_true', help='Use shift pre-transform or not.')
