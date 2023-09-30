@@ -1,6 +1,6 @@
 import random
 from pathlib import Path
-from typing import Optional, Callable
+from typing import Optional, Callable, List, Dict
 
 import numpy as np
 import torch
@@ -17,8 +17,8 @@ class CT(Dataset):
     def __init__(self,
                  directory: Path,
                  slice_indexing_func: Callable[[torch.Tensor], int],
-                 transforms: Optional[list[Transform]] = None,
-                 pre_transforms: Optional[list[PreTransform]] = None,
+                 transforms: Optional[List[Transform]] = None,
+                 pre_transforms: Optional[List[PreTransform]] = None,
                  in_memory: bool = True,
                  ) -> None:
         super().__init__()
@@ -61,13 +61,13 @@ class CT(Dataset):
         return _normal_indexing_func
 
     @staticmethod
-    def __read_all(directory: Path) -> list[Path]:
+    def __read_all(directory: Path) -> List[Path]:
         return list(sorted(directory.glob("**/*")))
 
     def __len__(self) -> int:
         return self.NUM_TIME_STEPS * len(self.__paths)
 
-    def __getitem__(self, index: int) -> dict[str, torch.Tensor]:
+    def __getitem__(self, index: int) -> Dict[str, torch.Tensor]:
         idx = index // self.NUM_TIME_STEPS
         timestep_idx = index % self.NUM_TIME_STEPS
 

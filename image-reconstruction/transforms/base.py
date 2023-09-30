@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from typing import Dict
 
 import torch
 
@@ -6,6 +7,6 @@ import torch
 class Transform(metaclass=ABCMeta):
     @abstractmethod
     def __call__(self,
-                 data: dict[str, torch.Tensor],
-                 ) -> dict[str, torch.Tensor]:
+                 data: Dict[str, torch.Tensor],
+                 ) -> Dict[str, torch.Tensor]:
         pass

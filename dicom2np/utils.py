@@ -1,5 +1,6 @@
 from collections import defaultdict, Counter
 from pathlib import Path
+from typing import List
 
 import pydicom
 import numpy as np
@@ -28,7 +29,7 @@ def dicom2np(dcm: pydicom.Dataset) -> np.ndarray:
     return r
 
 
-def process_one(paths: list[Path],
+def process_one(paths: List[Path],
                 save_dir: Path,
                 lower: int,
                 upper: int,
@@ -111,7 +112,7 @@ def process_one(paths: list[Path],
     return
 
 
-def process(paths: list[Path],
+def process(paths: List[Path],
             save_dir: Path,
             lower: int,
             upper: int,
