@@ -72,16 +72,20 @@ def process_one(paths: List[Path],
 
         dcms[int(dcm.SeriesNumber)][int(dcm.InstanceNumber) - 1] = dcm
 
-    counts = Counter(len(instances) for series, instances in dcms.items())
-    if counts.most_common(n=1)[0][1] != 10:
+    counts = Counter(len(instances) for _, instances in dcms.items())
+    max_counts = counts.most_common(n=1)[0][1]
+    if max_counts < 10:
         # num of instances == 10
-        raise ApplicationError(f'num of instances != 10 ({study_instance_uid})')
+        raise ApplicationError(f'num of instances = {max_counts} < 10 ({study_instance_uid})')
 
     dcms = {series: instances
             for series, instances in dcms.items()
             if counts[len(instances)] == 10}
-    if len(dcms) != 10:
+    if len(dcms) < 10:
         raise ApplicationError('unknown error')
+    elif len(dcms) > 10:
+        # earlier ones are not included in 4D-CT
+        dcms = dcms[-10:]
 
     xs = []
     size = None
