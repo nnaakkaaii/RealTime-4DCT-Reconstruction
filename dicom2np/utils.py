@@ -62,7 +62,6 @@ def process_one(path: Path, study_instance_uid: str) -> pydicom.Dataset:
     return dcm
 
 
-
 def process_study(paths: List[Path],
                   save_dir: Path,
                   lower: int,
@@ -74,7 +73,7 @@ def process_study(paths: List[Path],
     study_instance_uid = None
     for _, path in enumerate(paths):
         try:
-            dcm = process_one(path, process_study)
+            dcm = process_one(path, study_instance_uid)
         except Exception as e:
             tqdm.write(f'{e}')
             continue
