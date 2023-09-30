@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Tuple
 
 from torch.utils.data import random_split
 
@@ -26,8 +27,8 @@ def main(phase: str,
          batch_size: int,
          lr_g: float,
          lr_d: float,
-         betas_g: tuple[float, float],
-         betas_d: tuple[float, float],
+         betas_g: Tuple[float, float],
+         betas_d: Tuple[float, float],
          c_adv: float,
          c_mse: float,
          c_ssim: float,

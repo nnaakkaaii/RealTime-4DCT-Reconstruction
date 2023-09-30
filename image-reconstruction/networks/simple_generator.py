@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import torch
 from torch import nn
 
@@ -29,7 +31,7 @@ class SimpleGenerator(nn.Module):
                inhale_3d_ct: torch.Tensor,
                exhale_2d_ct: torch.Tensor,
                inhale_2d_ct: torch.Tensor,
-               ) -> tuple[
+               ) -> Tuple[
                     torch.Tensor,
                     torch.Tensor,
                     torch.Tensor,
