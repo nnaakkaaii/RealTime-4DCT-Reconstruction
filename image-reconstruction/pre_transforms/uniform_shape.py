@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import torch
 from torch.nn import functional as F
 
@@ -6,7 +8,7 @@ from .base import PreTransform
 
 class UniformShape(PreTransform):
     def __init__(self,
-                 target_shape: tuple[int, int, int] = (50, 512, 512),
+                 target_shape: Tuple[int, int, int] = (50, 512, 512),
                  ) -> None:
         self.__target_shape = target_shape
 

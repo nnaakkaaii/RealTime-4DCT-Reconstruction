@@ -1,4 +1,5 @@
 import random
+from typing import Tuple
 
 import torch
 from torch.nn import functional as F
@@ -8,7 +9,7 @@ from .base import PreTransform
 
 class Shift(PreTransform):
     def __init__(self,
-                 ds: tuple[int, int, int] = (5, 30, 30),
+                 ds: Tuple[int, int, int] = (5, 30, 30),
                  ) -> None:
         self.dz, self.dx, self.dy = ds
 
