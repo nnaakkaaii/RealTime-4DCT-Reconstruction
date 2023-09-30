@@ -29,44 +29,55 @@ def dicom2np(dcm: pydicom.Dataset) -> np.ndarray:
     return r
 
 
-def process_one(paths: List[Path],
-                save_dir: Path,
-                lower: int,
-                upper: int,
-                ) -> None:
+def process_one(path: Path, study_instance_uid: str) -> pydicom.Dataset:
+    dcm = pydicom.dcmread(path)
+
+    # no study instance uid
+    if not hasattr(dcm, 'StudyInstanceUID'):
+        raise ApplicationError(f'no study instance uid ({path})')
+
+    if study_instance_uid is not None and study_instance_uid != dcm.StudyInstanceUID:
+        raise ApplicationError(f'study instance id inconsistent ({path}): {study_instance_uid} and {dcm.StudyInstanceUID}')
+
+    # no pixel array
+    if not hasattr(dcm, 'pixel_array'):
+        raise ApplicationError(f'no pixel array ({path})')
+
+    # no series number
+    if not hasattr(dcm, 'SeriesNumber'):
+        raise ApplicationError(f'no series number ({path})')
+
+    # no slice index
+    if not hasattr(dcm, 'InstanceNumber'):
+        raise ApplicationError(f'no instance number ({path})')
+
+    # no rescale intercept
+    if not hasattr(dcm, 'RescaleIntercept'):
+        raise ApplicationError(f'no rescale intercept ({path})')
+
+    # no rescale slope
+    if not hasattr(dcm, 'RescaleSlope'):
+        raise ApplicationError(f'no rescale slope ({path})')
+    
+    return dcm
+
+
+
+def process_study(paths: List[Path],
+                  save_dir: Path,
+                  lower: int,
+                  upper: int,
+                  ) -> None:
     """process one 4D-CT image"""
     dcms = defaultdict(dict)
 
     study_instance_uid = None
-    for i, path in enumerate(paths):
-        dcm = pydicom.dcmread(path)
-
-        # no study instance uid
-        if not hasattr(dcm, 'StudyInstanceUID'):
-            raise ApplicationError(f'no study instance uid ({path})')
-
-        if study_instance_uid is not None and study_instance_uid != dcm.StudyInstanceUID:
-            raise ApplicationError(f'study instance id inconsistent ({path}): {study_instance_uid} and {dcm.StudyInstanceUID}')
-
-        # no pixel array
-        if not hasattr(dcm, 'pixel_array'):
-            raise ApplicationError(f'no pixel array ({path})')
-
-        # no series number
-        if not hasattr(dcm, 'SeriesNumber'):
-            raise ApplicationError(f'no series number ({path})')
-
-        # no slice index
-        if not hasattr(dcm, 'InstanceNumber'):
-            raise ApplicationError(f'no instance number ({path})')
-
-        # no rescale intercept
-        if not hasattr(dcm, 'RescaleIntercept'):
-            raise ApplicationError(f'no rescale intercept ({path})')
-
-        # no rescale slope
-        if not hasattr(dcm, 'RescaleSlope'):
-            raise ApplicationError(f'no rescale slope ({path})')
+    for _, path in enumerate(paths):
+        try:
+            dcm = process_one(path)
+        except Exception as e:
+            tqdm.write(f'{e}')
+            continue
 
         study_instance_uid = dcm.StudyInstanceUID
 
@@ -128,7 +139,7 @@ def process(paths: List[Path],
     print('process studies...')
     for study, paths in tqdm(studies.items()):
         try:
-            process_one(paths, save_dir, lower, upper)
+            process_study(paths, save_dir, lower, upper)
         except Exception as e:
             tqdm.write(f'[{study}] {e}')
 
