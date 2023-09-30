@@ -5,7 +5,7 @@
 ```shell
 $ python3 -m image-reconstruction \
     --data_dir data/4D-Lung/npz-sample \
-    --use_shift_pre_trasform \
+    --use_shift_pre_transform \
     --save_dir ./results/sample \
     --batch_size 1 \
     --num_epochs 2 \

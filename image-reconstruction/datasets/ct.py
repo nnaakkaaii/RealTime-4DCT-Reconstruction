@@ -13,6 +13,7 @@ from ..transforms.base import Transform
 class CT(Dataset):
 
     NUM_TIME_STEPS = 10
+    TRAIN_PER_VAL = 4
 
     def __init__(self,
                  directory: Path,
@@ -20,10 +21,17 @@ class CT(Dataset):
                  transforms: Optional[List[Transform]] = None,
                  pre_transforms: Optional[List[PreTransform]] = None,
                  in_memory: bool = True,
+                 phase: str = "train",
                  ) -> None:
         super().__init__()
 
-        self.__paths = self.__read_all(directory)
+        self.__paths = []
+        for i, path in enumerate(self.__read_all(directory)):
+            if phase == "train" and i % (1 + self.TRAIN_PER_VAL) != 0:
+                self.__paths.append(path)
+            elif phase == "val" and i % (1 + self.TRAIN_PER_VAL) == 0:
+                self.__paths.append(path)
+
         self.__data = []
         if in_memory:
             for path in self.__paths:

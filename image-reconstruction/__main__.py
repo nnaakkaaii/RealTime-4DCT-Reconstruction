@@ -1,7 +1,5 @@
 from pathlib import Path
 
-from torch.utils.data import random_split
-
 from .train import train
 from .datasets.ct import CT
 from .pre_transforms.normalize import Normalize
@@ -39,31 +37,37 @@ def main(phase: str,
          device: str = "cuda:0",
          ) -> None:
     assert phase == "train"
-    dataset = CT(directory=data_dir,
-                 slice_indexing_func=CT.get_normal_indexing_func(
-                     dataset_slice_indexing_min_occupancy,
-                     dataset_slice_indexing_threshold,
-                    ),
-                 )
-    
-    dataset_length = len(dataset)
-    train_length = int(0.8 * dataset_length)
-    val_length = dataset_length - train_length
-
-    train_dataset, val_dataset = random_split(dataset,
-                                              [train_length, val_length],
-                                              )
-    train_dataset.pre_transforms = [Normalize()]
+    train_pre_transforms = [Normalize()]
     if use_shift_pre_transform:
-        train_dataset.pre_transforms.append(Shift(
+        train_pre_transforms.append(Shift(
             (shift_pre_transform_n,
              shift_pre_transform_h,
              shift_pre_transform_w,
              ),
             ))
-    train_dataset.pre_transforms.append(UniformShape())
+    train_pre_transforms.append(UniformShape())
 
-    val_dataset.pre_transforms = [Normalize(), UniformShape()]
+    train_dataset = CT(
+        directory=data_dir,
+        slice_indexing_func=CT.get_normal_indexing_func(
+            dataset_slice_indexing_min_occupancy,
+            dataset_slice_indexing_threshold,
+            ),
+        pre_transforms=train_pre_transforms,
+        phase="train",
+        )
+    val_dataset = CT(
+        directory=data_dir,
+        slice_indexing_func=CT.get_normal_indexing_func(
+            dataset_slice_indexing_min_occupancy,
+            dataset_slice_indexing_threshold,
+            ),
+        pre_transforms=[
+            Normalize(),
+            UniformShape(),
+            ],
+        phase="val",
+        )
 
     if generator_name == "simple":
         generator = SimpleGenerator()
