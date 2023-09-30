@@ -34,6 +34,10 @@ def train(train_set: Dataset,
           ) -> float:
     min_target_value = 10**6
 
+    if device == "cuda:0":
+        generator = nn.DataParallel(generator)
+        discriminator = nn.DataParallel(discriminator)
+
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
 
@@ -177,8 +181,12 @@ def train(train_set: Dataset,
         if epoch % save_weight_per_epoch == 0:
             os.makedirs(epoch_save_dir, exist_ok=True)
             
-            torch.save(generator.state_dict(), epoch_save_dir / "generator.pth")
-            torch.save(discriminator.state_dict(), epoch_save_dir / "discriminator.pth")
+            if device == "cuda:0":
+                torch.save(generator.module.state_dict(), epoch_save_dir / "generator.pth")
+                torch.save(discriminator.module.state_dict(), epoch_save_dir / "discriminator.pth")
+            else:
+                torch.save(generator.state_dict(), epoch_save_dir / "generator.pth")
+                torch.save(discriminator.state_dict(), epoch_save_dir / "discriminator.pth")
 
         print(f"Epoch {epoch}/{num_epochs}")
         print(f"Train Losses: "
