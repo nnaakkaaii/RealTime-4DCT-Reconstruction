@@ -74,7 +74,7 @@ def process_study(paths: List[Path],
     study_instance_uid = None
     for _, path in enumerate(paths):
         try:
-            dcm = process_one(path)
+            dcm = process_one(path, process_study)
         except Exception as e:
             tqdm.write(f'{e}')
             continue
