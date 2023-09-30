@@ -80,16 +80,13 @@ def process_one(paths: List[Path],
 
     dcms = {series: instances
             for series, instances in dcms.items()
-            if counts[len(instances)] == 10}
+            if counts[len(instances)] == max_counts}
     if len(dcms) < 10:
         raise ApplicationError('unknown error')
-    elif len(dcms) > 10:
-        # earlier ones are not included in 4D-CT
-        dcms = dcms[-10:]
 
     xs = []
     size = None
-    for _, instances in sorted(dcms.items(), key=lambda x: x[0]):
+    for _, instances in sorted(dcms.items(), key=lambda x: x[0])[-10:]:
         if size is not None and size != len(instances):
             raise ApplicationError(f'size mismatch ({study_instance_uid})')
         size = len(instances)
