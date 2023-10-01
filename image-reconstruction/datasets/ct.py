@@ -32,10 +32,16 @@ class CT(Dataset):
             elif phase == "val" and i % (1 + self.TRAIN_PER_VAL) == 0:
                 self.__paths.append(path)
 
-        self.__data = []
+        self.__data: List[torch.Tensor] = []
         if in_memory:
             for path in self.__paths:
-                self.__data.append(np.load(path)["arr_0"])
+                x_4d_np = np.load(path)["arr_0"]
+                x_4d_tensor = torch.from_numpy(x_4d_np)
+
+                for transform in pre_transforms:
+                    x_4d_tensor = transform(x_4d_tensor)
+
+                self.__data.append(x_4d_tensor)
         
         self.__slice_indexing_func = slice_indexing_func
 
@@ -80,13 +86,13 @@ class CT(Dataset):
         timestep_idx = index % self.NUM_TIME_STEPS
 
         if len(self.__data) > 0:
-            x_4d_np = self.__data[idx]
+            x_4d_tensor = self.__data[idx]
         else:
             x_4d_np = np.load(self.__paths[idx])["arr_0"]
-        x_4d_tensor = torch.from_numpy(x_4d_np)
+            x_4d_tensor = torch.from_numpy(x_4d_np)
 
-        for transform in self.pre_transforms:
-            x_4d_tensor = transform(x_4d_tensor)
+            for transform in self.pre_transforms:
+                x_4d_tensor = transform(x_4d_tensor)
 
         # channelを追加
         x_4d_tensor = x_4d_tensor.unsqueeze(0).float()
