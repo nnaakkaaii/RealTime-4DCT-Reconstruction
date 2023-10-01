@@ -13,6 +13,7 @@ from .networks.simple_discriminator import SimpleDiscriminator
 
 def main(phase: str,
          data_dir: Path,
+         in_memory: bool,
          dataset_slice_indexing_min_occupancy: float,
          dataset_slice_indexing_threshold: float,
          use_shift_pre_transform: bool,
@@ -56,6 +57,7 @@ def main(phase: str,
             ),
         pre_transforms=train_pre_transforms,
         phase="train",
+        in_memory=in_memory,
         )
     val_dataset = CT(
         directory=data_dir,
@@ -68,6 +70,7 @@ def main(phase: str,
             UniformShape(),
             ],
         phase="val",
+        in_memory=in_memory,
         )
 
     if generator_name == "simple":
@@ -111,6 +114,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--phase', type=str, default='train', help='Phase of the program (default: train).')
     parser.add_argument('--data_dir', type=Path, required=True, help='Directory containing the CT dataset.')
+    parser.add_argument('--in_memory', action='store_true', help='Place dataset on memory')
     parser.add_argument('--dataset_slice_indexing_min_occupancy', type=float, default=0.2, help='Minimum occupancy for slice indexing.')
     parser.add_argument('--dataset_slice_indexing_threshold', type=float, default=0.1, help='Threshold for slice indexing.')
     parser.add_argument('--use_shift_pre_transform', action='store_true', help='Use shift pre-transform or not.')
