@@ -148,7 +148,6 @@ def train(train_set: Dataset,
                 loss_fake = criterion_adv(output_fake, label_fake)
 
                 loss_d = loss_real + loss_fake
-                loss_d.backward()
 
                 metrics["val_d_total"] += loss_d.item()
 
