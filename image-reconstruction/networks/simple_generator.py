@@ -38,11 +38,12 @@ class SimpleGenerator(nn.Module):
                     torch.Tensor,
                     torch.Tensor,
                     ]:
-        x_2d_ct = self.encoder_x_2d_ct(x_2d_ct).unsqueeze(4).repeat(1, 1, 1, 1, 64)
         exhale_3d_ct = self.encoder_exhale_3d_ct(exhale_3d_ct)
         inhale_3d_ct = self.encoder_inhale_3d_ct(inhale_3d_ct)
-        exhale_2d_ct = self.encoder_exhale_2d_ct(exhale_2d_ct).unsqueeze(4).repeat(1, 1, 1, 1, 64)
-        inhale_2d_ct = self.encoder_inhale_2d_ct(inhale_2d_ct).unsqueeze(4).repeat(1, 1, 1, 1, 64)
+        w_dim = exhale_3d_ct.shape[-1]
+        x_2d_ct = self.encoder_x_2d_ct(x_2d_ct).unsqueeze(4).repeat(1, 1, 1, 1, w_dim)
+        exhale_2d_ct = self.encoder_exhale_2d_ct(exhale_2d_ct).unsqueeze(4).repeat(1, 1, 1, 1, w_dim)
+        inhale_2d_ct = self.encoder_inhale_2d_ct(inhale_2d_ct).unsqueeze(4).repeat(1, 1, 1, 1, w_dim)
         return x_2d_ct, exhale_3d_ct, inhale_3d_ct, exhale_2d_ct, inhale_2d_ct
 
     def aggregate(self,
