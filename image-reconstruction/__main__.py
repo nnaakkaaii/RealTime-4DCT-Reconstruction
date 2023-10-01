@@ -6,6 +6,7 @@ from .datasets.ct import CT
 from .pre_transforms.normalize import Normalize
 from .pre_transforms.shift import Shift
 from .pre_transforms.uniform_shape import UniformShape
+from .pre_transforms.pool import Pool
 from .networks.simple_generator import SimpleGenerator
 from .networks.weighted_generator import WeightedGenerator
 from .networks.simple_discriminator import SimpleDiscriminator
@@ -16,6 +17,7 @@ def main(phase: str,
          in_memory: bool,
          dataset_slice_indexing_min_occupancy: float,
          dataset_slice_indexing_threshold: float,
+         pool_size: int,
          use_shift_pre_transform: bool,
          shift_pre_transform_n: int,
          shift_pre_transform_h: int,
@@ -48,6 +50,15 @@ def main(phase: str,
              ),
             ))
     train_pre_transforms.append(UniformShape())
+    if pool_size != 1:
+        train_pre_transforms.append(Pool(pool_size))
+    
+    val_pre_transforms = [
+        Normalize(),
+        UniformShape(),
+        ]
+    if pool_size != 1:
+        val_pre_transforms.append(Pool(pool_size))
 
     train_dataset = CT(
         directory=data_dir,
@@ -65,10 +76,7 @@ def main(phase: str,
             dataset_slice_indexing_min_occupancy,
             dataset_slice_indexing_threshold,
             ),
-        pre_transforms=[
-            Normalize(),
-            UniformShape(),
-            ],
+        pre_transforms=val_pre_transforms,
         phase="val",
         in_memory=in_memory,
         )
@@ -81,7 +89,7 @@ def main(phase: str,
         raise KeyError(f"unknown generator {generator_name}")
     
     if discriminator_name == "simple":
-        discriminator = SimpleDiscriminator()
+        discriminator = SimpleDiscriminator(pool_size=pool_size)
     else:
         raise KeyError(f"unknown discriminator {discriminator_name}")
 
@@ -117,6 +125,7 @@ if __name__ == "__main__":
     parser.add_argument('--in_memory', action='store_true', help='Place dataset on memory')
     parser.add_argument('--dataset_slice_indexing_min_occupancy', type=float, default=0.2, help='Minimum occupancy for slice indexing.')
     parser.add_argument('--dataset_slice_indexing_threshold', type=float, default=0.1, help='Threshold for slice indexing.')
+    parser.add_argument('--pool_size', type=int, default=1, help='Size of pooling.')
     parser.add_argument('--use_shift_pre_transform', action='store_true', help='Use shift pre-transform or not.')
     parser.add_argument('--shift_pre_transform_n', type=int, default=5, help='Shift along the n axis for pre-transform.')
     parser.add_argument('--shift_pre_transform_h', type=int, default=30, help='Shift along the h axis for pre-transform.')
