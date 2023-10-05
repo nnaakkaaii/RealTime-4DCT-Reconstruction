@@ -176,6 +176,7 @@ def train(train_set: Dataset,
 
                 if idx % save_graph_per_idx == 0:
                     os.makedirs(epoch_save_dir, exist_ok=True)
+                    np.savez(epoch_save_dir / f"real_3d_ct_batch_{idx}.npz", real_3d_ct.cpu().numpy())
                     np.savez(epoch_save_dir / f"fake_3d_ct_batch_{idx}.npz", fake_3d_ct.cpu().numpy())
                 
                 if metrics[f"val_{target}"] < min_target_value:
