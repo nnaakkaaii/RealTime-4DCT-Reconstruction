@@ -2,10 +2,11 @@ from pathlib import Path
 
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 
 def main(result_dir: Path) -> None:
-    for fake_path in result_dir.glob("**/fake_*.npz"):
+    for fake_path in tqdm(result_dir.glob("**/fake_*.npz")):
         name = fake_path.stem.lstrip("fake_")
         directory = fake_path.parent
 
