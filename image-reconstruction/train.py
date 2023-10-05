@@ -212,7 +212,7 @@ def train(train_set: Dataset,
         print("="*50)
 
         metrics_history.append(dict(metrics))
-        with open(save_dir / "metrics.json", "wb") as f:
+        with open(save_dir / "metrics.json", "w") as f:
             json.dump(metrics_history, f, indent=2)
 
     return min_target_value
