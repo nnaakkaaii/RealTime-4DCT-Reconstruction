@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 from collections import defaultdict
 from typing import Tuple
@@ -50,6 +51,8 @@ def train(train_set: Dataset,
 
     criterion_adv = nn.BCELoss()
     criterion_mse = nn.MSELoss()
+
+    metrics_history = []
 
     for epoch in range(num_epochs):
         generator.train()
@@ -206,5 +209,9 @@ def train(train_set: Dataset,
               f"Total D: {metrics['val_d_total'] / len(train_loader)}"
               )
         print("="*50)
+
+        metrics_history.append(dict(metrics))
+        with open(save_dir / "metrics.json", "wb") as f:
+            json.dump(metrics_history, f, indent=2)
 
     return min_target_value
