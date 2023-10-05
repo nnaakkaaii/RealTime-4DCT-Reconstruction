@@ -13,7 +13,7 @@ if __name__ == '__main__':
     parser.add_argument('--lower', type=int, default=-900)
     args = parser.parse_args()
 
-    process(args.data_dir.glob('**/*.dcm'),
+    process(list(sorted(args.data_dir.glob('**/*.dcm'))),
             args.save_dir,
             args.lower,
             args.upper,

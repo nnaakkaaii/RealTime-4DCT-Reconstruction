@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 
 def main(result_dir: Path) -> None:
-    for fake_path in tqdm(result_dir.glob("**/fake_*.npz")):
+    for fake_path in tqdm(list(sorted(result_dir.glob("**/fake_*.npz")))):
         name = fake_path.stem.lstrip("fake_")
         directory = fake_path.parent
 
@@ -49,6 +49,7 @@ def main(result_dir: Path) -> None:
 
         plt.subplots_adjust(wspace=0, hspace=0)
         plt.savefig(image_path, bbox_inches='tight', pad_inches=0)
+        plt.close()
 
 
 if __name__ == "__main__":
