@@ -13,6 +13,9 @@ def main(result_dir: Path) -> None:
         real_path = directory / ("real_" + name + ".npz")
         image_path = directory / ("image_" + name + ".jpg")
 
+        if image_path.exists():
+            continue
+
         fake = np.load(fake_path)['arr_0']
         if real_path.exists():
             real = np.load(real_path)['arr_0']
