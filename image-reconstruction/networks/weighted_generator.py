@@ -6,8 +6,11 @@ from .simple_generator import SimpleGenerator
 
 
 class WeightedGenerator(SimpleGenerator):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self,
+                 use_batch_norm: bool = True,
+                 num_layers: int = 3,
+                 ) -> None:
+        super().__init__(use_batch_norm, num_layers)
 
         self.weights = nn.Parameter(torch.ones(5))
 

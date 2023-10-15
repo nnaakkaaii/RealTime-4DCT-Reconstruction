@@ -23,6 +23,8 @@ def main(phase: str,
          shift_pre_transform_h: int,
          shift_pre_transform_w: int,
          generator_name: str,
+         generator_use_batch_norm: bool,
+         generator_num_layers: int,
          discriminator_name: str,
          num_epochs: int,
          batch_size: int,
@@ -82,9 +84,13 @@ def main(phase: str,
         )
 
     if generator_name == "simple":
-        generator = SimpleGenerator()
+        generator = SimpleGenerator(
+            generator_use_batch_norm,
+            generator_num_layers)
     elif generator_name == "weighted":
-        generator = WeightedGenerator()
+        generator = WeightedGenerator(
+            generator_use_batch_norm,
+            generator_num_layers)
     else:
         raise KeyError(f"unknown generator {generator_name}")
     
@@ -131,6 +137,8 @@ if __name__ == "__main__":
     parser.add_argument('--shift_pre_transform_h', type=int, default=30, help='Shift along the h axis for pre-transform.')
     parser.add_argument('--shift_pre_transform_w', type=int, default=30, help='Shift along the w axis for pre-transform.')
     parser.add_argument('--generator_name', type=str, choices=['simple', 'weighted'], default='simple', help='Name of the generator to use.')
+    parser.add_argument('--generator_use_batch_norm', action='store_true', help='Use batch norm')
+    parser.add_argument('--generator_num_layers', type=int, default=3, help='Number of layers')
     parser.add_argument('--discriminator_name', type=str, choices=['simple'], default='simple', help='Name of the discriminator to use.')
     parser.add_argument('--num_epochs', type=int, default=100, help='Number of epochs for training.')
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training.')
