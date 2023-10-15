@@ -4,18 +4,20 @@ from torch import nn
 
 class Encoder2D(nn.Module):
     def __init__(self,
-                 out_channels: int,
+                 use_batch_norm: bool,
+                 num_layers: int,
                  ) -> None:
         super().__init__()
 
-        self.conv = nn.Sequential(
-            nn.Conv2d(1, 32, 3, 1, 1),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, 1, 1),
-            nn.ReLU(),
-            nn.Conv2d(64, out_channels, 3, 1, 1),
-            nn.ReLU(),
-        )
+        start, end = 1, 32
+        layers = []
+        for _ in range(num_layers):
+            layers.append(nn.Conv2d(start, end, 3, 1, 1))
+            if use_batch_norm:
+                layers.append(nn.BatchNorm2d(end))
+            layers.append(nn.ReLU())
+            start, end = end, end * 2
+        self.layers = nn.Sequential(*layers)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.conv(x)
+        return self.layers(x)

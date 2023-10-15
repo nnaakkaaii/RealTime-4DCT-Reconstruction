@@ -8,22 +8,30 @@ from .encoder3d import Encoder3D
 
 
 class SimpleGenerator(nn.Module):
-    def __init__(self) -> None:
+    def __init__(self,
+                 use_batch_size: bool = True,
+                 num_layers: int = 3,
+                 ) -> None:
         super().__init__()
 
-        self.encoder_x_2d_ct = Encoder2D(128)
-        self.encoder_exhale_2d_ct = Encoder2D(128)
-        self.encoder_inhale_2d_ct = Encoder2D(128)
-        self.encoder_exhale_3d_ct = Encoder3D(128)
-        self.encoder_inhale_3d_ct = Encoder3D(128)
+        self.encoder_x_2d_ct = Encoder2D(use_batch_size, num_layers)
+        self.encoder_exhale_2d_ct = Encoder2D(use_batch_size, num_layers)
+        self.encoder_inhale_2d_ct = Encoder2D(use_batch_size, num_layers)
+        self.encoder_exhale_3d_ct = Encoder3D(use_batch_size, num_layers)
+        self.encoder_inhale_3d_ct = Encoder3D(use_batch_size, num_layers)
 
-        self.deconv = nn.Sequential(
-            nn.ConvTranspose3d(640, 128, 3, 1, 1),
-            nn.ReLU(),
-            nn.ConvTranspose3d(128, 64, 3, 1, 1),
-            nn.ReLU(),
-            nn.ConvTranspose3d(64, 1, 3, 1, 1),
-        )
+        deconv = []
+        dim = 32 * 2 ** (num_layers - 1)
+        start, end = 5 * dim, dim
+
+        for i in range(num_layers):
+            if i == num_layers - 1:
+                end = 1
+            deconv.append(nn.ConvTranspose3d(start, end, 3, 1, 1))
+            deconv.append(nn.ReLU())
+            start, end = end, end // 2
+
+        self.deconv = nn.Sequential(*deconv)
 
     def encode(self,
                x_2d_ct: torch.Tensor,
@@ -93,3 +101,15 @@ class SimpleGenerator(nn.Module):
         out = self.deconv(combined)
 
         return out
+
+
+if __name__ == '__main__':
+    g = SimpleGenerator()
+    print(g)
+    print(g(
+        torch.randn(1, 1, 50, 128),
+        torch.randn(1, 1, 50, 128, 128),
+        torch.randn(1, 1, 50, 128, 128),
+        torch.randn(1, 1, 50, 128),
+        torch.randn(1, 1, 50, 128),
+    ).shape)
