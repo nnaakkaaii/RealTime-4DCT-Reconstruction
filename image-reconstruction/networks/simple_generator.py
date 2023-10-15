@@ -5,6 +5,7 @@ from torch import nn
 
 from .encoder2d import Encoder2D
 from .encoder3d import Encoder3D
+from .decoder3d import Decoder3D
 
 
 class SimpleGenerator(nn.Module):
@@ -19,19 +20,7 @@ class SimpleGenerator(nn.Module):
         self.encoder_inhale_2d_ct = Encoder2D(use_batch_size, num_layers)
         self.encoder_exhale_3d_ct = Encoder3D(use_batch_size, num_layers)
         self.encoder_inhale_3d_ct = Encoder3D(use_batch_size, num_layers)
-
-        deconv = []
-        dim = 32 * 2 ** (num_layers - 1)
-        start, end = 5 * dim, dim
-
-        for i in range(num_layers):
-            if i == num_layers - 1:
-                end = 1
-            deconv.append(nn.ConvTranspose3d(start, end, 3, 1, 1))
-            deconv.append(nn.ReLU())
-            start, end = end, end // 2
-
-        self.deconv = nn.Sequential(*deconv)
+        self.deconv = Decoder3D(160 * 2 ** (num_layers - 1), num_layers)
 
     def encode(self,
                x_2d_ct: torch.Tensor,

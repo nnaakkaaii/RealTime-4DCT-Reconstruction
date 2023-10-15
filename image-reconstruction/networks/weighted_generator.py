@@ -3,6 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 
 from .simple_generator import SimpleGenerator
+from .decoder3d import Decoder3D
 
 
 class WeightedGenerator(SimpleGenerator):
@@ -14,11 +15,7 @@ class WeightedGenerator(SimpleGenerator):
 
         self.weights = nn.Parameter(torch.ones(5))
 
-        self.deconv = nn.Sequential(
-            nn.ConvTranspose3d(128, 64, 3, 1, 1),
-            nn.ReLU(),
-            nn.ConvTranspose3d(64, 1, 3, 1, 1),
-        )
+        self.deconv = Decoder3D(128, 2)
 
     def aggregate(self,
                   x_2d_ct: torch.Tensor,
