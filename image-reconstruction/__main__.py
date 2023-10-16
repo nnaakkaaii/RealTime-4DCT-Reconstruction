@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Optional
 
 from .train import train
 from .datasets.ct import CT
@@ -9,6 +9,7 @@ from .pre_transforms.uniform_shape import UniformShape
 from .pre_transforms.pool import Pool
 from .networks.simple_generator import SimpleGenerator
 from .networks.weighted_generator import WeightedGenerator
+from .networks.resnet_generator import ResNetGenerator
 from .networks.simple_discriminator import SimpleDiscriminator
 
 
@@ -25,6 +26,8 @@ def main(phase: str,
          generator_name: str,
          generator_use_batch_norm: bool,
          generator_num_layers: int,
+         generator_inner_channels: int,
+         generator_bottleneck_channels: int,
          discriminator_name: str,
          num_epochs: int,
          batch_size: int,
@@ -91,6 +94,11 @@ def main(phase: str,
         generator = WeightedGenerator(
             generator_use_batch_norm,
             generator_num_layers)
+    elif generator_name == "resnet":
+        generator = ResNetGenerator(
+            generator_num_layers,
+            generator_inner_channels,
+            generator_bottleneck_channels)
     else:
         raise KeyError(f"unknown generator {generator_name}")
     
@@ -136,9 +144,11 @@ if __name__ == "__main__":
     parser.add_argument('--shift_pre_transform_n', type=int, default=5, help='Shift along the n axis for pre-transform.')
     parser.add_argument('--shift_pre_transform_h', type=int, default=30, help='Shift along the h axis for pre-transform.')
     parser.add_argument('--shift_pre_transform_w', type=int, default=30, help='Shift along the w axis for pre-transform.')
-    parser.add_argument('--generator_name', type=str, choices=['simple', 'weighted'], default='simple', help='Name of the generator to use.')
+    parser.add_argument('--generator_name', type=str, choices=['simple', 'weighted', 'resnet'], default='simple', help='Name of the generator to use.')
     parser.add_argument('--generator_use_batch_norm', action='store_true', help='Use batch norm')
     parser.add_argument('--generator_num_layers', type=int, default=3, help='Number of layers')
+    parser.add_argument('--generator_inner_channels', type=int, default=256, help='Number of inner channels')
+    parser.add_argument('--generator_bottleneck_channels', type=Optional[int], default=None, help='Number of bottleneck channels')
     parser.add_argument('--discriminator_name', type=str, choices=['simple'], default='simple', help='Name of the discriminator to use.')
     parser.add_argument('--num_epochs', type=int, default=100, help='Number of epochs for training.')
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training.')
