@@ -148,7 +148,7 @@ if __name__ == "__main__":
     parser.add_argument('--generator_use_batch_norm', action='store_true', help='Use batch norm')
     parser.add_argument('--generator_num_layers', type=int, default=3, help='Number of layers')
     parser.add_argument('--generator_inner_channels', type=int, default=256, help='Number of inner channels')
-    parser.add_argument('--generator_bottleneck_channels', type=Optional[int], default=None, help='Number of bottleneck channels')
+    parser.add_argument('--generator_bottleneck_channels', type=int, default=None, help='Number of bottleneck channels')
     parser.add_argument('--discriminator_name', type=str, choices=['simple'], default='simple', help='Name of the discriminator to use.')
     parser.add_argument('--num_epochs', type=int, default=100, help='Number of epochs for training.')
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size for training.')
