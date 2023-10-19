@@ -19,9 +19,18 @@ class SimpleDiscriminator(nn.Module):
             nn.Conv3d(256, 512, 4, 2, 1),  # (256, 8, 8, 8) -> (512, 4, 4, 4)
             nn.BatchNorm3d(512),
             nn.LeakyReLU(0.2, inplace=True),
-            nn.Conv3d(512, 1024, 4, 2, 1),  # (512, 2, 2, 2) -> (1024, 1, 1, 1)
-            nn.Sigmoid()
+            nn.Conv3d(512, 1024, 4, 2, 1),  # (512, 4, 4, 4) -> (1024, 2, 2, 2)
+            nn.BatchNorm3d(1024),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Conv3d(1024, 1, 4, 2, 1),  # (1024, 2, 2, 2) -> (1, 1, 1, 1)
+            nn.Sigmoid(),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.net(x).view(-1, 1)
+
+
+if __name__ == "__main__":
+    x = torch.randn(32, 1, 64, 64, 64)
+    d = SimpleDiscriminator(pool_size=8)
+    print(d(x).shape)
