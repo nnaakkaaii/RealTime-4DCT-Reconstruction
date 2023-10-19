@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Tuple
 
 from .train import train
 from .datasets.ct import CT
@@ -26,7 +26,7 @@ def main(phase: str,
          generator_name: str,
          generator_use_batch_norm: bool,
          generator_num_layers: int,
-         generator_inner_channels: int,
+         generator_num_inner_layers: int,
          generator_bottleneck_channels: int,
          discriminator_name: str,
          num_epochs: int,
@@ -97,7 +97,7 @@ def main(phase: str,
     elif generator_name == "resnet":
         generator = ResNetGenerator(
             generator_num_layers,
-            generator_inner_channels,
+            generator_num_inner_layers,
             generator_bottleneck_channels)
     else:
         raise KeyError(f"unknown generator {generator_name}")
@@ -139,7 +139,7 @@ if __name__ == "__main__":
     parser.add_argument('--in_memory', action='store_true', help='Place dataset on memory')
     parser.add_argument('--dataset_slice_indexing_min_occupancy', type=float, default=0.2, help='Minimum occupancy for slice indexing.')
     parser.add_argument('--dataset_slice_indexing_threshold', type=float, default=0.1, help='Threshold for slice indexing.')
-    parser.add_argument('--pool_size', type=int, default=1, help='Size of pooling.')
+    parser.add_argument('--pool_size', type=int, default=8, help='Size of pooling.')
     parser.add_argument('--use_shift_pre_transform', action='store_true', help='Use shift pre-transform or not.')
     parser.add_argument('--shift_pre_transform_n', type=int, default=5, help='Shift along the n axis for pre-transform.')
     parser.add_argument('--shift_pre_transform_h', type=int, default=30, help='Shift along the h axis for pre-transform.')

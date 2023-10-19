@@ -3,9 +3,8 @@ from typing import Tuple
 import torch
 from torch import nn
 
-from .encoder2d import Encoder2D
-from .encoder3d import Encoder3D
-from .decoder3d import Decoder3D
+from .encoder import Encoder
+from .decoder import Decoder
 
 
 class SimpleGenerator(nn.Module):
@@ -15,12 +14,12 @@ class SimpleGenerator(nn.Module):
                  ) -> None:
         super().__init__()
 
-        self.encoder_x_2d_ct = Encoder2D(use_batch_size, num_layers)
-        self.encoder_exhale_2d_ct = Encoder2D(use_batch_size, num_layers)
-        self.encoder_inhale_2d_ct = Encoder2D(use_batch_size, num_layers)
-        self.encoder_exhale_3d_ct = Encoder3D(use_batch_size, num_layers)
-        self.encoder_inhale_3d_ct = Encoder3D(use_batch_size, num_layers)
-        self.deconv = Decoder3D(160 * 2 ** (num_layers - 1), num_layers)
+        self.encoder_x_2d_ct = Encoder(use_batch_size, num_layers, use_3d=False)
+        self.encoder_exhale_2d_ct = Encoder(use_batch_size, num_layers, use_3d=False)
+        self.encoder_inhale_2d_ct = Encoder(use_batch_size, num_layers, use_3d=False)
+        self.encoder_exhale_3d_ct = Encoder(use_batch_size, num_layers, use_3d=True)
+        self.encoder_inhale_3d_ct = Encoder(use_batch_size, num_layers, use_3d=True)
+        self.deconv = Decoder(160 * 2 ** (num_layers - 1), num_layers, use_3d=True)
 
     def encode(self,
                x_2d_ct: torch.Tensor,
@@ -96,9 +95,9 @@ if __name__ == '__main__':
     g = SimpleGenerator()
     print(g)
     print(g(
-        torch.randn(1, 1, 50, 128),
-        torch.randn(1, 1, 50, 128, 128),
-        torch.randn(1, 1, 50, 128, 128),
-        torch.randn(1, 1, 50, 128),
-        torch.randn(1, 1, 50, 128),
+        torch.randn(1, 1, 64, 64),
+        torch.randn(1, 1, 64, 64, 64),
+        torch.randn(1, 1, 64, 64, 64),
+        torch.randn(1, 1, 64, 64),
+        torch.randn(1, 1, 64, 64),
     ).shape)
