@@ -31,23 +31,25 @@ def main(result_dir: Path) -> None:
             gridspec_kw={'width_ratios': [128, 128, 128, 128]},
             )
 
+        _, _, z, h, w = fake.shape
+
         for i in range(b_size):
             # 列1: x[:, 0, :, :, 64]
-            axs[i, 0].imshow(fake[i, 0, :, :, 64], cmap='gray')
+            axs[i, 0].imshow(fake[i, 0, :, :, w // 2], cmap='gray')
             axs[i, 0].axis('off')
 
             # 列2: y[:, 0, :, :, 64] または空白
             if real is not None:
-                axs[i, 1].imshow(real[i, 0, :, :, 64], cmap='gray')
+                axs[i, 1].imshow(real[i, 0, :, :, w // 2], cmap='gray')
             axs[i, 1].axis('off')
 
             # 列3: x[:, 0, 25, :, :]
-            axs[i, 2].imshow(fake[i, 0, 25, :, :], cmap='gray')
+            axs[i, 2].imshow(fake[i, 0, z // 2, :, :], cmap='gray')
             axs[i, 2].axis('off')
 
             # 列4: y[:, 0, 25, :, :] または空白
             if real is not None:
-                axs[i, 3].imshow(real[i, 0, 25, :, :], cmap='gray')
+                axs[i, 3].imshow(real[i, 0, z // 2, :, :], cmap='gray')
             axs[i, 3].axis('off')
 
         plt.subplots_adjust(wspace=0, hspace=0)
