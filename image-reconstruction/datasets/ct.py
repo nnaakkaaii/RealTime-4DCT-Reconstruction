@@ -5,6 +5,7 @@ from typing import Optional, Callable, List, Dict
 import numpy as np
 import torch
 from torch.utils.data import Dataset
+from tqdm import tqdm
 
 from ..pre_transforms.base import PreTransform
 from ..transforms.base import Transform
@@ -34,7 +35,7 @@ class CT(Dataset):
 
         self.__data: List[torch.Tensor] = []
         if in_memory:
-            for path in self.__paths:
+            for path in tqdm(self.__paths, desc="loading datasets..."):
                 x_4d_np = np.load(path)["arr_0"]
                 x_4d_tensor = torch.from_numpy(x_4d_np)
 
