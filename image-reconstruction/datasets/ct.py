@@ -23,11 +23,14 @@ class CT(Dataset):
                  pre_transforms: Optional[List[PreTransform]] = None,
                  in_memory: bool = True,
                  phase: str = "train",
+                 max_data: Optional[int] = None,
                  ) -> None:
         super().__init__()
 
         self.__paths = []
         for i, path in enumerate(self.__read_all(directory)):
+            if max_data is not None and len(self.__paths) >= max_data:
+                break
             if phase == "train" and i % (1 + self.TRAIN_PER_VAL) != 0:
                 self.__paths.append(path)
             elif phase == "val" and i % (1 + self.TRAIN_PER_VAL) == 0:

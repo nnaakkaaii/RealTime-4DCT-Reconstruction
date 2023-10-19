@@ -75,6 +75,7 @@ def main(phase: str,
         pre_transforms=train_pre_transforms,
         phase="train",
         in_memory=in_memory,
+        max_data=None if max_iter is None else batch_size * max_iter,
         )
     val_dataset = CT(
         directory=data_dir,
@@ -85,6 +86,7 @@ def main(phase: str,
         pre_transforms=val_pre_transforms,
         phase="val",
         in_memory=in_memory,
+        max_data=None if max_iter is None else batch_size * max_iter,
         )
 
     if generator_name == "simple":
