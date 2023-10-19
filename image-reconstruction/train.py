@@ -2,7 +2,7 @@ import os
 import json
 from pathlib import Path
 from collections import defaultdict
-from typing import Tuple
+from typing import Tuple, Optional
 
 import torch
 import numpy as np
@@ -33,6 +33,7 @@ def train(train_set: Dataset,
           save_weight_per_epoch: int = 10,
           target: str = "mse",
           device: str = "cuda:0",
+          max_iter: Optional[int] = None,
           ) -> float:
     min_target_value = 10**6
 
@@ -60,7 +61,9 @@ def train(train_set: Dataset,
 
         metrics = defaultdict(float)
 
-        for data in train_loader:
+        for idx, data in enumerate(train_loader):
+            if max_iter is not None and idx >= max_iter:
+                break
             batch_size = data["3d"].size(0)
 
             real_3d_ct = data["3d"].to(device)
@@ -128,6 +131,8 @@ def train(train_set: Dataset,
 
         with torch.no_grad():
             for idx, data in enumerate(val_loader):
+                if max_iter is not None and idx >= max_iter:
+                    break
                 batch_size = data["3d"].size(0)
 
                 real_3d_ct = data["3d"].to(device)

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Optional
 
 from .train import train
 from .datasets.ct import CT
@@ -27,7 +27,7 @@ def main(phase: str,
          generator_use_batch_norm: bool,
          generator_num_layers: int,
          generator_num_inner_layers: int,
-         generator_bottleneck_channels: int,
+         generator_bottleneck_channels: Optional[int],
          discriminator_name: str,
          num_epochs: int,
          batch_size: int,
@@ -44,6 +44,7 @@ def main(phase: str,
          save_weight_per_epoch: int = 10,
          target: str = "mse",
          device: str = "cuda:0",
+         max_iter: Optional[int] = None,
          ) -> None:
     assert phase == "train"
     train_pre_transforms = [Normalize()]
@@ -126,6 +127,7 @@ def main(phase: str,
           save_weight_per_epoch=save_weight_per_epoch,
           target=target,
           device=device,
+          max_iter=max_iter,
           )
 
 
@@ -165,6 +167,7 @@ if __name__ == "__main__":
     parser.add_argument('--save_weight_per_epoch', type=int, default=10, help='Frequency to save the model weights.')
     parser.add_argument('--target', type=str, default='mse', help='Target loss for training.')
     parser.add_argument('--device', type=str, choices=['cpu', 'cuda:0'], default='cuda:0', help='Name of the generator to use.')
+    parser.add_argument('--max_iter', type=int, default=None, help='Max iterations per epoch')
 
     args = parser.parse_args()
 
