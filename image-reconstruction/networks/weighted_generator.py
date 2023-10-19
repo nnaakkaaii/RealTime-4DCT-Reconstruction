@@ -3,7 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 
 from .simple_generator import SimpleGenerator
-from .decoder3d import Decoder3D
+from .decoder import Decoder
 
 
 class WeightedGenerator(SimpleGenerator):
@@ -15,7 +15,7 @@ class WeightedGenerator(SimpleGenerator):
 
         self.weights = nn.Parameter(torch.ones(5))
 
-        self.deconv = Decoder3D(128, 2)
+        self.deconv = Decoder(128, 2, use_3d=True)
 
     def aggregate(self,
                   x_2d_ct: torch.Tensor,
