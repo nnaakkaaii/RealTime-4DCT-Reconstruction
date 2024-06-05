@@ -115,6 +115,7 @@ class CT(Dataset):
             "exhale_2d": x_4d_tensor[:, 0, :, :, slice_idx],
             "inhale_2d": x_4d_tensor[:, self.NUM_TIME_STEPS // 2, :, :, slice_idx],
             "4d": x_4d_tensor,
+            "idx": idx,
             "slice_idx": torch.tensor(slice_idx, dtype=int),
             "timestep_idx": torch.tensor(timestep_idx, dtype=int),
         }

@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Tuple, Optional
 
 from .train import train
+from .test import test
 from .datasets.ct import CT
 from .pre_transforms.normalize import Normalize
 from .pre_transforms.shift import Shift
@@ -45,6 +46,7 @@ def main(phase: str,
          target: str = "mse",
          device: str = "cuda:0",
          max_iter: Optional[int] = None,
+         is_test: bool = False,
          ) -> None:
     assert phase == "train"
     train_pre_transforms = [Normalize()]
@@ -110,6 +112,11 @@ def main(phase: str,
     else:
         raise KeyError(f"unknown discriminator {discriminator_name}")
 
+    if is_test:
+        test(val_set=val_dataset,
+             save_dir=save_dir,
+             device=device,
+             )
     train(train_dataset,
           val_dataset,
           generator,
@@ -170,6 +177,7 @@ if __name__ == "__main__":
     parser.add_argument('--target', type=str, default='mse', help='Target loss for training.')
     parser.add_argument('--device', type=str, choices=['cpu', 'cuda:0'], default='cuda:0', help='Name of the generator to use.')
     parser.add_argument('--max_iter', type=int, default=None, help='Max iterations per epoch')
+    parser.add_argument('--is_test', action='store_true', help='Test the model.')
 
     args = parser.parse_args()
 
