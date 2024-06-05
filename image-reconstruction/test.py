@@ -66,7 +66,7 @@ def test(val_set: Dataset,
                 if data['idx'] == last_idx:
                     assert data['timestep_idx'] == last_timestep_idx + 1, f'expected timestep idx {last_timestep_idx + 1}, got {data["timestep_idx"]}'
                     last_timestep_idx = data['timestep_idx']
-                elif last_idx is not None:
+                elif last_idx is None:
                     last_idx = data['idx']
                     last_timestep_idx = data['timestep_idx']
                 else:
