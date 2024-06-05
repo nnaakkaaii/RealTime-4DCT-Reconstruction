@@ -43,12 +43,12 @@ def test(val_set: Dataset,
         if not (epoch_save_dir / "generator.pth").exists():
             continue
 
-        generator_state_dict = torch.load(epoch_save_dir / "generator.pth")
-        generator_state_dict = update_keys(generator_state_dict)
-        generator.load_state_dict(generator_state_dict)
-
         if device == "cuda:0":
             generator = nn.DataParallel(generator)
+
+        generator_state_dict = torch.load(epoch_save_dir / "generator.pth")
+        generator_state_dict = update_keys(generator_state_dict)
+        generator.module.load_state_dict(generator_state_dict)
 
         generator.to(device)
         generator.eval()
