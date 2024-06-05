@@ -83,7 +83,7 @@ def main(phase: str,
              )
         return
 
-    assert phaes == "train"
+    assert phase == "train"
 
     train_dataset = CT(
         directory=data_dir,
