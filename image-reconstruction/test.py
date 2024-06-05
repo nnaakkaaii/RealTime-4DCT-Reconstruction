@@ -43,6 +43,13 @@ def test(val_set: Dataset,
         if not (epoch_save_dir / "generator.pth").exists():
             continue
 
+        test_save_dir = epoch_save_dir / "test_results"
+
+        if test_save_dir.exists():
+            continue
+
+        os.makedirs(test_save_dir)
+
         if device == "cuda:0":
             generator = nn.DataParallel(generator)
 
@@ -52,9 +59,6 @@ def test(val_set: Dataset,
 
         generator.to(device)
         generator.eval()
-
-        test_save_dir = epoch_save_dir / "test_results"
-        os.makedirs(test_save_dir, exist_ok=True)
 
         fakes = []
         reals = []
