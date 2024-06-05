@@ -37,17 +37,17 @@ def test(val_set: Dataset,
         reals = []
         metrics = []
         last_idx = None
-        last_timestamp_idx = None
+        last_timestep_idx = None
         with torch.no_grad():
             for data in val_set:
                 if last_idx is None:
                     last_idx = data['idx']
-                if last_timestamp_idx is None:
-                    last_timestamp_idx = data['timestamp_idx']
+                if last_timestep_idx is None:
+                    last_timestep_idx = data['timestep_idx']
 
                 if data['idx'] == last_idx:
-                    assert data['timestamp_idx'] == last_timestamp_idx + 1, f'expected timestamp idx {last_timestamp_idx + 1}, got {data["timestamp_idx"]}'
-                    last_timestamp_idx = data['timestamp_idx']
+                    assert data['timestep_idx'] == last_timestep_idx + 1, f'expected timestep idx {last_timestep_idx + 1}, got {data["timestep_idx"]}'
+                    last_timestep_idx = data['timestep_idx']
                 else:
                     assert data['idx'] == last_idx + 1, f'expected idx {last_idx + 1}, got {data["idx"]}'
                     # save data
