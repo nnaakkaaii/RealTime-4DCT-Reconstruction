@@ -32,6 +32,8 @@ def test(val_set: Dataset,
          save_dir: Path,
          device: str = "cuda:0",
          ) -> None:
+    if device == "cuda:0":
+        generator = nn.DataParallel(generator)
 
     val_loader = DataLoader(val_set, batch_size=1, shuffle=False)
     criterion_mse = nn.MSELoss()
@@ -49,9 +51,6 @@ def test(val_set: Dataset,
             continue
 
         os.makedirs(test_save_dir)
-
-        if device == "cuda:0":
-            generator = nn.DataParallel(generator)
 
         generator_state_dict = torch.load(epoch_save_dir / "generator.pth")
         generator_state_dict = update_keys(generator_state_dict)
