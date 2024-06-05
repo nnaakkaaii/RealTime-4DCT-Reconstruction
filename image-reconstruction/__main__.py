@@ -46,9 +46,7 @@ def main(phase: str,
          target: str = "mse",
          device: str = "cuda:0",
          max_iter: Optional[int] = None,
-         is_test: bool = False,
          ) -> None:
-    assert phase == "train"
     train_pre_transforms = [Normalize()]
     if use_shift_pre_transform:
         train_pre_transforms.append(Shift(
@@ -67,18 +65,6 @@ def main(phase: str,
         ]
     if pool_size != 1:
         val_pre_transforms.append(Pool(pool_size))
-
-    train_dataset = CT(
-        directory=data_dir,
-        slice_indexing_func=CT.get_normal_indexing_func(
-            dataset_slice_indexing_min_occupancy,
-            dataset_slice_indexing_threshold,
-            ),
-        pre_transforms=train_pre_transforms,
-        phase="train",
-        in_memory=in_memory,
-        max_data=None if max_iter is None else batch_size * max_iter,
-        )
     val_dataset = CT(
         directory=data_dir,
         slice_indexing_func=CT.get_normal_indexing_func(
@@ -90,6 +76,26 @@ def main(phase: str,
         in_memory=in_memory,
         max_data=None if max_iter is None else batch_size * max_iter,
         )
+    if phase == "test":
+        test(val_set=val_dataset,
+             save_dir=save_dir,
+             device=device,
+             )
+        return
+
+    assert phaes == "train"
+
+    train_dataset = CT(
+        directory=data_dir,
+        slice_indexing_func=CT.get_normal_indexing_func(
+            dataset_slice_indexing_min_occupancy,
+            dataset_slice_indexing_threshold,
+        ),
+        pre_transforms=train_pre_transforms,
+        phase="train",
+        in_memory=in_memory,
+        max_data=None if max_iter is None else batch_size * max_iter,
+    )
 
     if generator_name == "simple":
         generator = SimpleGenerator(
@@ -112,11 +118,6 @@ def main(phase: str,
     else:
         raise KeyError(f"unknown discriminator {discriminator_name}")
 
-    if is_test:
-        test(val_set=val_dataset,
-             save_dir=save_dir,
-             device=device,
-             )
     train(train_dataset,
           val_dataset,
           generator,
@@ -177,7 +178,6 @@ if __name__ == "__main__":
     parser.add_argument('--target', type=str, default='mse', help='Target loss for training.')
     parser.add_argument('--device', type=str, choices=['cpu', 'cuda:0'], default='cuda:0', help='Name of the generator to use.')
     parser.add_argument('--max_iter', type=int, default=None, help='Max iterations per epoch')
-    parser.add_argument('--is_test', action='store_true', help='Test the model.')
 
     args = parser.parse_args()
 
