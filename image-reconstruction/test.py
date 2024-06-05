@@ -12,6 +12,7 @@ from .criteria.pjc import projection_consistency_loss
 
 
 def test(val_set: Dataset,
+         generator: nn.Module,
          save_dir: Path,
          device: str = "cuda:0",
          ) -> None:
@@ -25,7 +26,10 @@ def test(val_set: Dataset,
 
         if not (epoch_save_dir / "generator.pth").exists():
             continue
-        generator = torch.load(epoch_save_dir / "generator.pth")
+
+        generator_state_dict = torch.load(epoch_save_dir / "generator.pth")
+        generator.load_state_dict(generator_state_dict)
+
         if device == "cuda:0":
             generator = nn.DataParallel(generator)
 
