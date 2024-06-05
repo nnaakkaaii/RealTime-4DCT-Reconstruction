@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 import torch
 from torch import nn
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 
 from .criteria.ssim import ssim
 from .criteria.pjc import projection_consistency_loss
@@ -15,6 +15,8 @@ def test(val_set: Dataset,
          save_dir: Path,
          device: str = "cuda:0",
          ) -> None:
+
+    val_loader = DataLoader(val_set, batch_size=1, shuffle=False)
     criterion_mse = nn.MSELoss()
 
     for epoch_save_dir in save_dir.glob("epoch_*"):
@@ -39,7 +41,7 @@ def test(val_set: Dataset,
         last_idx = None
         last_timestep_idx = None
         with torch.no_grad():
-            for data in val_set:
+            for data in val_loader:
                 if last_idx is None and last_timestep_idx is None:
                     last_idx = data['idx']
                     last_timestep_idx = data['timestep_idx']
