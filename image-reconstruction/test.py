@@ -40,29 +40,28 @@ def test(val_set: Dataset,
         last_timestep_idx = None
         with torch.no_grad():
             for data in val_set:
-                if last_idx is None:
+                if last_idx is None and last_timestep_idx is None:
                     last_idx = data['idx']
-                if last_timestep_idx is None:
-                    last_timestep_idx = data['timestep_idx']
-
-                if data['idx'] == last_idx:
-                    assert data['timestep_idx'] == last_timestep_idx + 1, f'expected timestep idx {last_timestep_idx + 1}, got {data["timestep_idx"]}'
                     last_timestep_idx = data['timestep_idx']
                 else:
-                    assert data['idx'] == last_idx + 1, f'expected idx {last_idx + 1}, got {data["idx"]}'
-                    # save data
-                    fake = torch.cat(fakes, dim=1)
-                    np.savez(test_save_dir / f"fake_{last_idx}.npz", fake.numpy())
-                    real = torch.cat(reals, dim=1)
-                    np.savez(test_save_dir / f"real_{last_idx}.npz", real.numpy())
-                    # save metrics
-                    with open(test_save_dir / f"metrics_{last_idx}.json", "w") as f:
-                        json.dump(metrics, f)
-                    metrics = []
-                    fakes = []
-                    reals = []
+                    if data['idx'] == last_idx:
+                        assert data['timestep_idx'] == last_timestep_idx + 1, f'expected timestep idx {last_timestep_idx + 1}, got {data["timestep_idx"]}'
+                        last_timestep_idx = data['timestep_idx']
+                    else:
+                        assert data['idx'] == last_idx + 1, f'expected idx {last_idx + 1}, got {data["idx"]}'
+                        # save data
+                        fake = torch.cat(fakes, dim=1)
+                        np.savez(test_save_dir / f"fake_{last_idx}.npz", fake.numpy())
+                        real = torch.cat(reals, dim=1)
+                        np.savez(test_save_dir / f"real_{last_idx}.npz", real.numpy())
+                        # save metrics
+                        with open(test_save_dir / f"metrics_{last_idx}.json", "w") as f:
+                            json.dump(metrics, f)
+                        metrics = []
+                        fakes = []
+                        reals = []
 
-                    last_idx = data['idx']
+                        last_idx = data['idx']
 
                 real_3d_ct = data["3d"].to(device)
                 real_2d_ct = data["2d"].to(device)
