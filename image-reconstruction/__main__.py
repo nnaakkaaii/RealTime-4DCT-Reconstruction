@@ -76,8 +76,26 @@ def main(phase: str,
         in_memory=in_memory,
         max_data=None if max_iter is None else batch_size * max_iter,
         )
+
+    if generator_name == "simple":
+        generator = SimpleGenerator(
+            generator_use_batch_norm,
+            generator_num_layers)
+    elif generator_name == "weighted":
+        generator = WeightedGenerator(
+            generator_use_batch_norm,
+            generator_num_layers)
+    elif generator_name == "resnet":
+        generator = ResNetGenerator(
+            generator_num_layers,
+            generator_num_inner_layers,
+            generator_bottleneck_channels)
+    else:
+        raise KeyError(f"unknown generator {generator_name}")
+
     if phase == "test":
         test(val_set=val_dataset,
+             generator=generator,
              save_dir=save_dir,
              device=device,
              )
@@ -97,22 +115,6 @@ def main(phase: str,
         max_data=None if max_iter is None else batch_size * max_iter,
     )
 
-    if generator_name == "simple":
-        generator = SimpleGenerator(
-            generator_use_batch_norm,
-            generator_num_layers)
-    elif generator_name == "weighted":
-        generator = WeightedGenerator(
-            generator_use_batch_norm,
-            generator_num_layers)
-    elif generator_name == "resnet":
-        generator = ResNetGenerator(
-            generator_num_layers,
-            generator_num_inner_layers,
-            generator_bottleneck_channels)
-    else:
-        raise KeyError(f"unknown generator {generator_name}")
-    
     if discriminator_name == "simple":
         discriminator = SimpleDiscriminator(pool_size=pool_size)
     else:
