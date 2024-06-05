@@ -21,6 +21,8 @@ def test(val_set: Dataset,
         if not epoch_save_dir.is_dir():
             continue
 
+        if not (epoch_save_dir / "generator.pth").exists():
+            continue
         generator = torch.load(epoch_save_dir / "generator.pth")
         if device == "cuda:0":
             generator = nn.DataParallel(generator)
