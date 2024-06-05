@@ -18,9 +18,9 @@ def update_keys(state_dict):
         # encoder_*.convをencoder_*.layersに変更
         if "encoder_" in key and ".conv." in key:
             new_key = key.replace(".conv.", ".layers.")
-        # decoder.*をdecoder.layers.*に変更
-        elif "decoder." in key:
-            new_key = key.replace("decoder.", "decoder.layers.")
+        # deconv.*をdeconv.layers.*に変更
+        elif "deconv." in key:
+            new_key = key.replace("deconv.", "deconv.layers.")
         else:
             new_key = key
         new_state_dict[new_key] = value
