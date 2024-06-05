@@ -1,6 +1,7 @@
 import os
 import json
 from pathlib import Path
+from collections import OrderedDict
 
 import numpy as np
 import torch
@@ -9,6 +10,21 @@ from torch.utils.data import Dataset, DataLoader
 
 from .criteria.ssim import ssim
 from .criteria.pjc import projection_consistency_loss
+
+
+def update_keys(state_dict):
+    new_state_dict = OrderedDict()
+    for key, value in state_dict.items():
+        # encoder_*.convをencoder_*.layersに変更
+        if "encoder_" in key and ".conv." in key:
+            new_key = key.replace(".conv.", ".layers.")
+        # decoder.*をdecoder.layers.*に変更
+        elif "decoder." in key:
+            new_key = key.replace("decoder.", "decoder.layers.")
+        else:
+            new_key = key
+        new_state_dict[new_key] = value
+    return new_state_dict
 
 
 def test(val_set: Dataset,
@@ -28,6 +44,7 @@ def test(val_set: Dataset,
             continue
 
         generator_state_dict = torch.load(epoch_save_dir / "generator.pth")
+        generator_state_dict = update_keys(generator_state_dict)
         generator.load_state_dict(generator_state_dict)
 
         if device == "cuda:0":
