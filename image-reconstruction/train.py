@@ -68,6 +68,8 @@ def train(train_set: Dataset,
 
             real_3d_ct = data["3d"].to(device)
             real_2d_ct = data["2d"].to(device)
+            exhale_3d_ct = data["exhale_3d"].to(device)
+            inhale_3d_ct = data["inhale_3d"].to(device)
 
             # update discriminator
             label_real = torch.ones(batch_size).to(device)
@@ -75,17 +77,23 @@ def train(train_set: Dataset,
 
             optim_d.zero_grad()
 
-            output_real = discriminator(real_3d_ct).view(-1)
+            output_real = discriminator(real_3d_ct,
+                                        exhale_3d_ct,
+                                        inhale_3d_ct,
+                                        ).view(-1)
             loss_real = criterion_adv(output_real, label_real)
 
             fake_3d_ct = generator(real_2d_ct,
-                                   data["exhale_3d"].to(device),
-                                   data["inhale_3d"].to(device),
+                                   exhale_3d_ct,
+                                   inhale_3d_ct,
                                    data["exhale_2d"].to(device),
                                    data["inhale_2d"].to(device),
                                    )
-            
-            output_fake = discriminator(fake_3d_ct.detach()).view(-1)
+
+            output_fake = discriminator(fake_3d_ct.detach(),
+                                        exhale_3d_ct,
+                                        inhale_3d_ct,
+                                        ).view(-1)
             loss_fake = criterion_adv(output_fake, label_fake)
 
             loss_d = loss_real + loss_fake
@@ -97,10 +105,7 @@ def train(train_set: Dataset,
 
             # udpate generator
             optim_g.zero_grad()
-
-            output_fake = discriminator(fake_3d_ct).view(-1)
             loss_adv = criterion_adv(output_fake, label_real)
-
             loss_mse = criterion_mse(fake_3d_ct, real_3d_ct)
             loss_ssim = ssim(fake_3d_ct, real_3d_ct)
             loss_pjc = projection_consistency_loss(fake_3d_ct,
@@ -137,31 +142,37 @@ def train(train_set: Dataset,
 
                 real_3d_ct = data["3d"].to(device)
                 real_2d_ct = data["2d"].to(device)
+                exhale_3d_ct = data["exhale_3d"].to(device)
+                inhale_3d_ct = data["inhale_3d"].to(device)
 
                 # discriminator
                 label_real = torch.ones(batch_size).to(device)
                 label_fake = torch.zeros(batch_size).to(device)
 
-                output_real = discriminator(real_3d_ct).view(-1)
+                output_real = discriminator(real_3d_ct,
+                                            exhale_3d_ct,
+                                            inhale_3d_ct,
+                                            ).view(-1)
                 loss_real = criterion_adv(output_real, label_real)
 
                 fake_3d_ct = generator(real_2d_ct,
-                                       data["exhale_3d"].to(device),
-                                       data["inhale_3d"].to(device),
+                                       exhale_3d_ct,
+                                       inhale_3d_ct,
                                        data["exhale_2d"].to(device),
                                        data["inhale_2d"].to(device),
                                        )
 
-                output_fake = discriminator(fake_3d_ct.detach()).view(-1)
+                output_fake = discriminator(fake_3d_ct.detach(),
+                                            exhale_3d_ct,
+                                            inhale_3d_ct,
+                                            ).view(-1)
                 loss_fake = criterion_adv(output_fake, label_fake)
 
                 loss_d = loss_real + loss_fake
 
                 metrics["val_d_total"] += loss_d.item()
 
-                output_fake = discriminator(fake_3d_ct.detach()).view(-1)
                 loss_adv = criterion_adv(output_fake, label_real)
-
                 loss_mse = criterion_mse(fake_3d_ct, real_3d_ct)
                 loss_ssim = ssim(fake_3d_ct, real_3d_ct)
                 loss_pjc = projection_consistency_loss(fake_3d_ct, real_2d_ct, slice_idx=data["slice_idx"])
