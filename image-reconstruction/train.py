@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 from pathlib import Path
 from collections import defaultdict
 from typing import Tuple, Optional
@@ -103,7 +104,7 @@ def train(train_set: Dataset,
 
             metrics["train_d_total"] += loss_d.item()
 
-            # udpate generator
+            # update generator
             optim_g.zero_grad()
             loss_adv = criterion_adv(output_fake.detach(), label_real)
             loss_mse = criterion_mse(fake_3d_ct, real_3d_ct)
@@ -208,14 +209,15 @@ def train(train_set: Dataset,
                 torch.save(generator.state_dict(), epoch_save_dir / "generator.pth")
                 torch.save(discriminator.state_dict(), epoch_save_dir / "discriminator.pth")
 
-        print(f"Epoch {epoch}/{num_epochs}")
+        print(f"Epoch {epoch}/{num_epochs}", file=sys.stderr)
         print(f"Train Losses: "
               f"MSE: {metrics['train_mse'] / len(train_loader)}, "
               f"SSIM: {metrics['train_ssim'] / len(train_loader)}, "
               f"ADV: {metrics['train_adv'] / len(train_loader)}, "
               f"PJC: {metrics['train_pjc'] / len(train_loader)}, "
               f"Total G: {metrics['train_g_total'] / len(train_loader)}, "
-              f"Total D: {metrics['train_d_total'] / len(train_loader)}"
+              f"Total D: {metrics['train_d_total'] / len(train_loader)}",
+              file=sys.stderr,
               )
         print(f"Val Losses: "
               f"MSE: {metrics['val_mse'] / len(train_loader)}, "
@@ -223,9 +225,10 @@ def train(train_set: Dataset,
               f"ADV: {metrics['val_adv'] / len(train_loader)}, "
               f"PJC: {metrics['val_pjc'] / len(train_loader)}, "
               f"Total G: {metrics['val_g_total'] / len(train_loader)}, "
-              f"Total D: {metrics['val_d_total'] / len(train_loader)}"
+              f"Total D: {metrics['val_d_total'] / len(train_loader)}",
+              file=sys.stderr,
               )
-        print("="*50)
+        print("="*50, file=sys.stderr)
 
         metrics_history.append(dict(metrics))
         with open(save_dir / "metrics.json", "w") as f:
