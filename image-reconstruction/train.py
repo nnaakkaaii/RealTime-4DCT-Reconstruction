@@ -105,7 +105,7 @@ def train(train_set: Dataset,
 
             # udpate generator
             optim_g.zero_grad()
-            loss_adv = criterion_adv(output_fake, label_real)
+            loss_adv = criterion_adv(output_fake.detach(), label_real)
             loss_mse = criterion_mse(fake_3d_ct, real_3d_ct)
             loss_ssim = ssim(fake_3d_ct, real_3d_ct)
             loss_pjc = projection_consistency_loss(fake_3d_ct,
