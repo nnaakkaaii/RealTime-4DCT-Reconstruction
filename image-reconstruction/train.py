@@ -209,7 +209,10 @@ def train(train_set: Dataset,
                 torch.save(generator.state_dict(), epoch_save_dir / "generator.pth")
                 torch.save(discriminator.state_dict(), epoch_save_dir / "discriminator.pth")
 
-        print(f"Epoch {epoch}/{num_epochs}", file=sys.stderr)
+        print(f"Epoch {epoch}/{num_epochs}",
+              file=sys.stdout,
+              flush=True,
+              )
         print(f"Train Losses: "
               f"MSE: {metrics['train_mse'] / len(train_loader)}, "
               f"SSIM: {metrics['train_ssim'] / len(train_loader)}, "
@@ -217,7 +220,8 @@ def train(train_set: Dataset,
               f"PJC: {metrics['train_pjc'] / len(train_loader)}, "
               f"Total G: {metrics['train_g_total'] / len(train_loader)}, "
               f"Total D: {metrics['train_d_total'] / len(train_loader)}",
-              file=sys.stderr,
+              file=sys.stdout,
+              flush=True,
               )
         print(f"Val Losses: "
               f"MSE: {metrics['val_mse'] / len(train_loader)}, "
@@ -226,9 +230,13 @@ def train(train_set: Dataset,
               f"PJC: {metrics['val_pjc'] / len(train_loader)}, "
               f"Total G: {metrics['val_g_total'] / len(train_loader)}, "
               f"Total D: {metrics['val_d_total'] / len(train_loader)}",
-              file=sys.stderr,
+              file=sys.stdout,
+              flush=True,
               )
-        print("="*50, file=sys.stderr)
+        print("="*50,
+              file=sys.stdout,
+              flush=True,
+              )
 
         metrics_history.append(dict(metrics))
         with open(save_dir / "metrics.json", "w") as f:
