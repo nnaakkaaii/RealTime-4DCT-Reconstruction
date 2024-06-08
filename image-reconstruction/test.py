@@ -54,7 +54,7 @@ def test(val_set: Dataset,
             continue
 
         print(f"start {epoch_save_dir} (length {len(val_loader)})", flush=True)
-        os.makedirs(test_save_dir)
+        os.makedirs(test_save_dir, exist_ok=True)
 
         generator_state_dict = torch.load(epoch_save_dir / "generator.pth")
         # generator_state_dict = update_keys(generator_state_dict)
