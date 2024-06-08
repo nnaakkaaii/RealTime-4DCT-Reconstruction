@@ -40,16 +40,20 @@ def test(val_set: Dataset,
 
     for epoch_save_dir in save_dir.glob("epoch_*"):
         if not epoch_save_dir.is_dir():
+            print(f"skip {epoch_save_dir}", flush=True)
             continue
 
         if not (epoch_save_dir / "generator.pth").exists():
+            print(f"skip {epoch_save_dir} (no generator.pth)", flush=True)
             continue
 
         test_save_dir = epoch_save_dir / "test_results"
 
-        if test_save_dir.exists():
+        if test_save_dir.exists() and len(list(test_save_dir.glob("*.npz"))) > 0:
+            print(f"skip {epoch_save_dir} (already processed)", flush=True)
             continue
 
+        print(f"start {epoch_save_dir} (length {len(val_loader)})", flush=True)
         os.makedirs(test_save_dir)
 
         generator_state_dict = torch.load(epoch_save_dir / "generator.pth")
