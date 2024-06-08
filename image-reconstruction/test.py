@@ -53,7 +53,7 @@ def test(val_set: Dataset,
         os.makedirs(test_save_dir)
 
         generator_state_dict = torch.load(epoch_save_dir / "generator.pth")
-        generator_state_dict = update_keys(generator_state_dict)
+        # generator_state_dict = update_keys(generator_state_dict)
         generator.module.load_state_dict(generator_state_dict)
 
         generator.to(device)
