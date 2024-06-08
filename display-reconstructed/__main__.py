@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 def main(result_dir: Path) -> None:
     for fake_path in tqdm(list(sorted(result_dir.glob("**/fake_*.npz")))):
-        name = fake_path.stem.lstrip("fake_")
+        name = fake_path.stem.lstrip("fake_3d_ct")
         directory = fake_path.parent
 
         real_path = directory / ("real_" + name + ".npz")
